@@ -36,6 +36,50 @@ function createWindow() {
     win.webContents.openDevTools();
 
     //создаем создаем форму контекстного меню 
+    // var trayMenuTemplate = [
+    //     {
+    //         label: "Открыть",
+    //         click: function () {
+    //             win.show();
+    //         } // Открываем соответствующую страницу
+    //     },
+    //     {
+    //         label: 'Помощь',
+    //         click: function () { }
+    //     },
+    //     {
+    //         label: "О нас",
+    //         click: function () { }
+    //     },
+    //     {
+    //         label: "Выход",
+    //         click: function () {
+    //             app.quit();
+    //             app.quit();
+    //         }
+    //     }
+    // ];
+    trayIcon = path.join(__dirname, 'app');
+    //создаем иконку и прицепляем на неё картинку
+    appTray = new Tray(path.join(trayIcon, 'app.ico'));
+    //типо как второе меню 
+    var trayMenuTemplate1 = [
+        {
+            label: "Open",
+            click: function () {
+                win.show();
+            } // Открываем соответствующую страницу
+        },
+        {
+            label: 'Help',
+            click: function () { }
+        },
+        {
+            label: "About Us",
+            click: function () { }
+        }
+    ];
+    //первое меню
     var trayMenuTemplate = [
         {
             label: "Открыть",
@@ -52,6 +96,14 @@ function createWindow() {
             click: function () { }
         },
         {
+            label: "Ещё",
+            click: function () {
+                const all = [...trayMenuTemplate1, ...trayMenuTemplate]
+                const menu = Menu.buildFromTemplate(all)
+                appTray.popUpContextMenu(menu);
+            }
+        },
+        {
             label: "Выход",
             click: function () {
                 app.quit();
@@ -59,10 +111,7 @@ function createWindow() {
             }
         }
     ];
-
-    trayIcon = path.join(__dirname, 'app');
-    //создаем иконку и прицепляем на неё картинку
-    appTray = new Tray(path.join(trayIcon, 'app.ico'));
+   
 
     //создание контекстного меню
     const contextMenu = Menu.buildFromTemplate(trayMenuTemplate);
@@ -74,7 +123,16 @@ function createWindow() {
 
     //Контекстное меню на ЛКМ
     appTray.on('click', (e) => {
+        //здесь мы открываем первое меню 
         appTray.popUpContextMenu(contextMenu)
+        //объединяем массивы , чтобы сделать одно большое меню 
+        const all = [...trayMenuTemplate1, ...trayMenuTemplate]
+       //здесь мы бидлим это меню из массива 
+        const menu = Menu.buildFromTemplate(all)
+        //и вызываем такую функицю только уже с большим меню 
+        setTimeout(() => { 
+            appTray.popUpContextMenu(menu);
+        },500)
     })
     //Открытие окна двойным кликом
     appTray.on('double-click', (e) => {
